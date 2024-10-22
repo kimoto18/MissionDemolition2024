@@ -5,7 +5,10 @@ using UnityEngine;
 [RequireComponent(typeof(LineRenderer))]
  public class ProjectileLine : MonoBehaviour
 {
-     private LineRenderer _line;                                                // a
+    static List<ProjectileLine> PROJ_LINES = new List<ProjectileLine>();     // a
+    private const float DIM_MULT = 0.75f;
+
+    private LineRenderer _line;                                                // a
      private bool _drawing = true;
      private Projectile _projectile;
      
@@ -16,9 +19,13 @@ using UnityEngine;
  _line.SetPosition(0, transform.position);
 
  _projectile = GetComponentInParent<Projectile>();                      // c
+
+        ADD_LINE(this);
     }
  
      void FixedUpdate()
+
+
     {
          if (_drawing)
         {
@@ -35,4 +42,24 @@ using UnityEngine;
              }
         }
     }
+
+    private void OnDestroy()
+    {                                                 // c
+         // Remove this ProjectileLine from PROJ_LINES
+ PROJ_LINES.Remove(this);
+     }
+ 
+     static void ADD_LINE(ProjectileLine newLine)
+    {
+ Color col;                                                            // d
+         // Iterate over all the old lines and dim them
+         foreach (ProjectileLine pl in PROJ_LINES)
+        {
+ col = pl._line.startColor;                                        // e
+ col = col * DIM_MULT;
+ pl._line.startColor = pl._line.endColor = col;                    // f
+         }
+         // Add newLine to the List
+ PROJ_LINES.Add(newLine);                                            // g
+     }
 }
